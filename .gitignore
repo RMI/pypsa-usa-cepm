@@ -1,7 +1,3 @@
-# Claude Code session files (underscore prefix convention)
-_*.md
-.claude*
-
 # misc
 .vscode
 dconf
