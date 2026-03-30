@@ -83,6 +83,7 @@ dev = [
     "myst-parser",
     "pytest",
     "sphinxcontrib-bibtex>=2.6.5",
+    "jupyterlab>=4.5.6",
 ]
 
 [tool.setuptools.package-dir]
@@ -153,3 +154,4 @@ line-ending = "auto"
 testpaths = [
     "workflow/scripts/test"
 ]
+

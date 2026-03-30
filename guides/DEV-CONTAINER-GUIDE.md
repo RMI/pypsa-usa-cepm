@@ -41,20 +41,20 @@ The virtual environment persists between container restarts. If you stop and res
 
 ## How the watch service works
 
-Docker Compose `watch` is a feature that monitors files on your host machine and reacts when they change. This container configures two types of reactions:
+### Instant file updates (bind mount)
+The entire project directory is bind-mounted into the container at `/workspace`. This means any file you edit on your host — scripts, configs, notebooks — is immediately visible inside the container with no delay and no extra tooling. This is how day-to-day editing works.
 
-### `sync` — instant file updates
-When you edit any file inside `workflow/`, the change is immediately copied into the running container. There is no delay, no restart, no rebuild. This is how you work day-to-day: edit a script on your host, and the container sees it instantly.
-
-### `rebuild` — full container rebuild
-When `uv.lock` or `pyproject.toml` changes, the watch service stops the container, rebuilds the image from scratch (re-running `uv sync`), and restarts it. This happens automatically whenever a developer adds or removes a Python dependency. It is slower (a few minutes), but it ensures that every developer's environment stays in sync with the lock file.
+### `rebuild` — dependency changes via Docker Compose `watch`
+When `uv.lock` or `pyproject.toml` changes, the watch service stops the container, rebuilds the image (re-running `uv sync`), and restarts it. This happens automatically whenever a developer adds or removes a Python dependency. It is slower (a few minutes), but ensures every developer's environment stays in sync with the lock file.
 
 **To start the watch service:**
 ```bash
 docker compose watch
 ```
 
-Run this in a terminal on your host machine (not inside the container). Leave it running in the background while you work. You will see log output whenever a sync or rebuild is triggered.
+> **Note on `-d` (detached mode):** Many Docker Compose commands accept a `-d` flag, which stands for "detached." It runs the container in the background and returns your terminal prompt immediately. Without `-d`, the container's log output streams directly to your terminal and you can't type other commands until you stop it with `Ctrl+C`. For a dev container you always want `-d` — the container is meant to run continuously in the background while you work in VS Code. The `watch` command does not use `-d` because it intentionally streams rebuild events to your terminal so you can see when changes are detected.
+
+Run this in a terminal on your host machine (not inside the container). Leave it running while you work. You will see log output whenever a rebuild is triggered.
 
 ---
 
@@ -227,8 +227,8 @@ This workflow requires an optimization solver to solve the energy system models.
 - Another process on your host is using port 8888, 8787, or 8000. Stop that process, or edit `docker-compose.yml` to map to a different host port (e.g., `"8889:8888"`).
 
 ### File changes not appearing in container
-- The watch service (`docker compose watch`) must be running for sync to work. Start it in a terminal on your host machine.
-- For non-`workflow/` directories, changes are not automatically synced — they are on the bind-mounted project root, which means they're already shared.
+- The entire project is bind-mounted, so edits on the host should appear instantly. If they don't, check that Docker Desktop is running and the container is up (`docker compose ps`).
+- The watch service (`docker compose watch`) is only needed for dependency rebuilds — it is not required for source file changes to appear.
 
 ### Gurobi license not found
 - Confirm `~/gurobi.lic` exists on your host machine.

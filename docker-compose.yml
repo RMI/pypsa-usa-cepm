@@ -1,0 +1,43 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      # Project source — bind-mounted from host so edits are immediately visible
+      - .:/workspace
+      # Virtual environment — named volume keeps it off the Windows filesystem (faster)
+      - pypsa-venv:/workspace/.venv
+      # UV package download cache — persists across image rebuilds so re-syncs are fast
+      - uv-cache:/uv-cache
+      # Git credentials from host — read-only so commits work from inside the container
+      - ~/.gitconfig:/home/dev/.gitconfig:ro
+      # Gurobi license — uncomment when a license file is available at ~/gurobi.lic
+      # - ~/gurobi.lic:/home/dev/gurobi.lic:ro
+    environment:
+      UV_CACHE_DIR: /uv-cache
+      UV_LINK_MODE: copy
+      UV_PROJECT_ENVIRONMENT: /workspace/.venv
+    ports:
+      - "8888:8888"   # Jupyter Lab / Notebook
+      - "8787:8787"   # Dask dashboard
+      - "8000:8000"   # Sphinx autobuild (docs preview)
+    # Sync the venv into the named volume on every startup, then keep the container alive.
+    # uv sync is fast on restarts because the uv-cache volume is already populated.
+    command: bash -c "uv sync --frozen --no-install-project && sleep infinity"
+    # Run as the non-root dev user defined in the Dockerfile
+    user: dev
+
+    develop:
+      watch:
+        # Dependency changes: rebuild the image and re-run uv sync.
+        # Source file changes don't need a watch rule — the bind mount (.:/workspace)
+        # makes all host edits instantly visible inside the container already.
+        - path: uv.lock
+          action: rebuild
+        - path: pyproject.toml
+          action: rebuild
+
+volumes:
+  pypsa-venv:
+  uv-cache:

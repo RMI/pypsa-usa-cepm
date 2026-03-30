@@ -1,0 +1,38 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+
+# Git history (large, not needed in image)
+.git/
+
+# Snakemake working directory
+.snakemake/
+
+# Large generated/downloaded data directories (gitignored in repo)
+results/
+resources/
+data/
+benchmarks/
+logs/
+
+# Large file types
+*.nc
+*.tar.gz
+*.zip
+*.h5
+*.hdf5
+
+# Claude session files
+.claude*
+
+# Editor artifacts
+.vscode/
+*.DS_Store
