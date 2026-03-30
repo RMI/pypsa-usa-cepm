@@ -1,2 +1,10 @@
 # *.pdf filter=lfs diff=lfs merge=lfs -text
 # *.png filter=lfs diff=lfs merge=lfs -text
+
+### Resolving line endings between Windows and Unix
+### See https://code.visualstudio.com/docs/remote/troubleshooting#_resolving-git-line-ending-issues-in-wsl-resulting-in-many-modified-files
+### For more info.
+* text=auto eol=lf
+*.{cmd,[cC][mM][dD]} text eol=crlf
+*.{cmd,[bB][aA][tT]} text eol=crlf
+
